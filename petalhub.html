@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PetalHub — Order Flowers Online</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+
+    --ink: #1C3829;
+    --paper: #F6F1E3;
+    --card: #FFFCF5;
+    --rose: #B5525B;
+    --rose-deep: #8B3D45;
+    --sage: #7C9885;
+    --gold: #BE9A52;
+    --line: rgba(28,56,41,0.14);
+    --text: #1C3829;
+    --text-soft: rgba(28,56,41,0.62);
+    --shadow: 0 1px 0 rgba(28,56,41,0.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #EDE7D9;
+      --paper: #14231B;
+      --card: #1D3226;
+      --rose: #E0838A;
+      --rose-deep: #F0A6AC;
+      --sage: #9FBBA6;
+      --gold: #D8B36B;
+      --line: rgba(237,231,217,0.16);
+      --text: #EDE7D9;
+      --text-soft: rgba(237,231,217,0.64);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #EDE7D9;
+    --paper: #14231B;
+    --card: #1D3226;
+    --rose: #E0838A;
+    --rose-deep: #F0A6AC;
+    --sage: #9FBBA6;
+    --gold: #D8B36B;
+    --line: rgba(237,231,217,0.16);
+    --text: #EDE7D9;
+    --text-soft: rgba(237,231,217,0.64);
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--text);
+    font-family: 'Karla', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100%;
+  }
+  h1, h2, h3, .display {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin: 0;
+    color: var(--text);
+  }
+  a { color: inherit; }
+  button { font-family: inherit; cursor: pointer; }
+
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    padding-top: env(safe-area-inset-top, 0px);
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+  }
+  .topbar-inner {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 21px;
+    font-weight: 600;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: var(--text);
+    padding: 0;
+  }
+  .brand-mark { width: 24px; height: 24px; flex: none; }
+  .cart-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 100px;
+    padding: 8px 14px 8px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .cart-pill svg { width: 17px; height: 17px; }
+  .cart-count {
+    background: var(--rose);
+    color: var(--card);
+    border-radius: 100px;
+    min-width: 18px;
+    height: 18px;
+    font-size: 11px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+    font-weight: 700;
+  }
+
+  .steps {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 0 20px 14px;
+    display: flex;
+    gap: 4px;
+  }
+  .step {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .step-bar { height: 3px; border-radius: 2px; background: var(--line); }
+  .step.active .step-bar, .step.done .step-bar { background: var(--gold); }
+  .step-label {
+    font-size: 10.5px;
+    letter-spacing: 0.02em;
+    color: var(--text-soft);
+  }
+  .step.active .step-label { color: var(--text); font-weight: 700; }
+
+  main {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 28px 20px 80px;
+  }
+
+  .hero {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 26px;
+    flex-wrap: wrap;
+  }
+  .hero h1 { font-size: 34px; max-width: 420px; line-height: 1.08; }
+  .hero p { color: var(--text-soft); margin-top: 10px; max-width: 380px; font-size: 15px; line-height: 1.55; }
+  .hero-mark { width: 74px; height: 74px; flex: none; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
+  .flower-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 18px 16px 16px;
+    cursor: pointer;
+    text-align: left;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .flower-card:hover { transform: translateY(-2px); border-color: var(--gold); }
+  .flower-card:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, .tap-card:focus-visible {
+    outline: 2px solid var(--rose-deep);
+    outline-offset: 2px;
+  }
+  .flower-tag {
+    align-self: flex-start;
+    font-size: 10.5px;
+    letter-spacing: 0.03em;
+    color: var(--sage);
+    border: 1px solid var(--line);
+    border-radius: 100px;
+    padding: 3px 9px;
+  }
+  .flower-icon-wrap { display: flex; justify-content: center; padding: 6px 0 2px; }
+  .flower-icon-wrap svg { width: 78px; height: 78px; }
+  .flower-name { font-size: 17px; }
+  .flower-price { color: var(--text-soft); font-size: 13.5px; }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: var(--text-soft);
+    font-size: 13.5px;
+    font-weight: 600;
+    padding: 0;
+    margin-bottom: 18px;
+  }
+  .back-link svg { width: 14px; height: 14px; }
+
+  .detail {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 32px;
+  }
+  @media (max-width: 620px) { .detail { grid-template-columns: 1fr; } }
+  .detail-visual {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+  }
+  .detail-visual svg { width: 100%; height: auto; max-width: 200px; }
+  .detail-body h2 { font-size: 28px; margin-bottom: 6px; }
+  .detail-price { font-size: 16px; color: var(--rose-deep); font-weight: 700; margin: 8px 0 14px; }
+  .detail-desc { color: var(--text-soft); line-height: 1.6; font-size: 14.5px; margin-bottom: 6px; }
+  .detail-stock { font-size: 13px; color: var(--sage); font-weight: 600; margin-bottom: 22px; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: none;
+    border-radius: 3px;
+    padding: 13px 22px;
+    font-weight: 700;
+    font-size: 14.5px;
+    background: var(--rose-deep);
+    color: #FFFDF8;
+    transition: background 0.15s ease;
+  }
+  .btn:hover { background: var(--rose); }
+  .btn.secondary {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--line);
+  }
+  .btn.secondary:hover { border-color: var(--gold); }
+  .btn.block { width: 100%; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .qty-row { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+  .qty-btn {
+    width: 34px; height: 34px; border-radius: 100px; border: 1px solid var(--line);
+    background: var(--card); font-size: 17px; font-weight: 700; color: var(--text);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .qty-val { font-weight: 700; font-size: 15px; min-width: 18px; text-align: center; }
+
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 26px 24px;
+  }
+  .panel + .panel { margin-top: 16px; }
+  .panel h2 { font-size: 22px; margin-bottom: 4px; }
+  .panel .sub { color: var(--text-soft); font-size: 13.5px; margin-bottom: 20px; }
+
+  .cart-line {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .cart-line:last-of-type { border-bottom: none; }
+  .cart-line-icon { width: 40px; height: 40px; flex: none; }
+  .cart-line-name { font-weight: 700; font-size: 15px; }
+  .cart-line-sub { color: var(--text-soft); font-size: 13px; margin-top: 2px; }
+  .cart-line-controls { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+  .cart-line-total { font-weight: 700; min-width: 56px; text-align: right; font-size: 14.5px; }
+  .remove-btn { background: none; border: none; color: var(--text-soft); font-size: 12px; text-decoration: underline; padding: 4px; }
+
+  .summary-row {
+    display: flex; justify-content: space-between; font-size: 14px; padding: 5px 0; color: var(--text-soft);
+  }
+  .summary-row.total { color: var(--text); font-weight: 700; font-size: 16px; border-top: 1px solid var(--line); margin-top: 8px; padding-top: 12px; }
+
+  .empty-state { text-align: center; padding: 50px 20px; color: var(--text-soft); }
+  .empty-state svg { width: 56px; height: 56px; margin-bottom: 14px; opacity: 0.7; }
+
+  .choice-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 20px 0 6px; }
+  @media (max-width: 480px) { .choice-row { grid-template-columns: 1fr; } }
+  .tap-card {
+    background: var(--paper);
+    border: 1.5px solid var(--line);
+    border-radius: 4px;
+    padding: 20px 18px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .tap-card:hover { border-color: var(--gold); }
+  .tap-card svg { width: 24px; height: 24px; margin-bottom: 6px; color: var(--rose-deep); }
+  .tap-card .t { font-weight: 700; font-size: 15px; }
+  .tap-card .d { font-size: 12.5px; color: var(--text-soft); }
+
+  form.stack { display: flex; flex-direction: column; gap: 14px; margin-top: 4px; }
+  .field label { display: block; font-size: 12.5px; font-weight: 700; margin-bottom: 6px; color: var(--text-soft); }
+  .field input, .field textarea, .field select {
+    width: 100%;
+    padding: 12px 13px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    background: var(--paper);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14.5px;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus { outline: 2px solid var(--rose-deep); outline-offset: 1px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 480px) { .row2 { grid-template-columns: 1fr; } }
+  .hint { font-size: 12px; color: var(--text-soft); margin-top: -6px; }
+  .error-box {
+    background: rgba(181,82,91,0.1);
+    border: 1px solid var(--rose);
+    color: var(--rose-deep);
+    border-radius: 3px;
+    padding: 11px 13px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .switch-mode { font-size: 13px; color: var(--text-soft); margin-top: 6px; }
+  .switch-mode button { background: none; border: none; color: var(--rose-deep); font-weight: 700; text-decoration: underline; padding: 0; font-size: 13px; }
+
+  .payment-list { display: flex; flex-direction: column; gap: 10px; margin: 18px 0 6px; }
+  .pay-opt {
+    display: flex; align-items: center; gap: 14px;
+    border: 1.5px solid var(--line); border-radius: 4px; padding: 15px 16px;
+    background: var(--paper); text-align: left;
+  }
+  .pay-opt.selected { border-color: var(--rose-deep); background: rgba(181,82,91,0.06); }
+  .pay-opt svg { width: 20px; height: 20px; color: var(--rose-deep); flex: none; }
+  .pay-opt .t { font-weight: 700; font-size: 14.5px; }
+  .pay-opt .d { font-size: 12px; color: var(--text-soft); }
+
+  .confirm-list { display: flex; flex-direction: column; gap: 2px; margin: 14px 0 18px; }
+  .confirm-item { display: flex; justify-content: space-between; font-size: 14px; padding: 6px 0; }
+  .confirm-item .label { color: var(--text-soft); }
+
+  .done-wrap { text-align: center; padding: 40px 10px 10px; }
+  .done-mark { width: 68px; height: 68px; margin: 0 auto 22px; }
+  .order-code {
+    display: inline-block;
+    font-family: 'Fraunces', serif;
+    font-size: 26px;
+    letter-spacing: 0.04em;
+    border: 1px dashed var(--gold);
+    border-radius: 4px;
+    padding: 10px 22px;
+    margin: 18px 0 26px;
+  }
+  .actions-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+
+  footer {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-soft);
+    padding: 30px 20px calc(30px + env(safe-area-inset-bottom, 0px));
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- data ---------- */
+  var FLOWERS = [
+    { id: 1, name: "Garden Rose", price: 18, petals: 8, color: "var(--rose)",  tag: "Bestseller", desc: "Full, ruffled blooms in a soft rose hue — the classic bouquet flower, sold by the bunch of six stems.", stock: "24 bunches available" },
+    { id: 2, name: "Tulip",       price: 12, petals: 6, color: "#C9707A",      tag: "Seasonal",   desc: "Clean, cup-shaped blooms just opening, prized for their simple, elegant silhouette.", stock: "40 bunches available" },
+    { id: 3, name: "Sunflower",   price: 9,  petals: 14,color: "#D9A441",      tag: "Cheerful",   desc: "Bold, sun-facing blooms with a deep centre — an instant lift for any room.", stock: "30 bunches available" },
+    { id: 4, name: "Peony",       price: 22, petals: 10,color: "#E3AEB4",      tag: "Limited",    desc: "Lush, layered petals with a soft scent — a favourite for spring arrangements.", stock: "12 bunches available" },
+    { id: 5, name: "Orchid",      price: 28, petals: 5, color: "#9C6FA8",      tag: "Exotic",     desc: "Elegant, long-lasting blooms with a sculptural, architectural form.", stock: "15 pots available" },
+    { id: 6, name: "Lily",        price: 16, petals: 6, color: "#F2F0E4",      tag: "Fragrant",   desc: "Trumpet-shaped blooms with a heady scent — striking in tall arrangements.", stock: "20 bunches available" }
+  ];
+  var STEP_LABELS = ["Browse", "Cart", "Account", "Fulfillment", "Payment", "Confirmed"];
+  var DEMO_PASSWORD = "petalhub";
+
+  /* ---------- state ---------- */
+  var state = {
+    screen: "home",
+    detailId: null,
+    qty: 1,
+    cart: [],
+    authenticated: false,
+    userName: "",
+    registerError: "",
+    loginError: "",
+    fulfillment: null,
+    address: { street: "", city: "", zip: "" },
+    payment: null,
+    orderCode: null
+  };
+
+  function go(screen){ state.screen = screen; window.scrollTo(0,0); render(); }
+
+  function cartCount(){
+    return state.cart.reduce(function(s, l){ return s + l.qty; }, 0);
+  }
+  function cartTotal(){
+    return state.cart.reduce(function(s, l){
+      var f = FLOWERS.filter(function(x){ return x.id === l.id; })[0];
+      return s + (f ? f.price * l.qty : 0);
+    }, 0);
+  }
+  function money(n){ return "$" + n.toFixed(2); }
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c];
+    });
+  }
+
+  /* ---------- icons ---------- */
+  function petalFlower(color, petals){
+    var cx = 60, cy = 60, r = 40, s = "";
+    for (var i = 0; i < petals; i++){
+      var angle = i * (360 / petals);
+      s += '<ellipse cx="' + cx + '" cy="' + (cy - r*0.56) + '" rx="' + (r*0.30) + '" ry="' + (r*0.60) +
+           '" fill="' + color + '" opacity="0.92" transform="rotate(' + angle + ' ' + cx + ' ' + cy + ')"/>';
+    }
+    s += '<circle cx="' + cx + '" cy="' + cy + '" r="' + (r*0.25) + '" fill="var(--gold)"/>';
+    return '<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">' + s + '</svg>';
+  }
+  function iconCart(){
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4" fill="currentColor" stroke="none"/><circle cx="18" cy="20" r="1.4" fill="currentColor" stroke="none"/><path d="M2.5 3h2l2.2 12.2a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H6"/></svg>';
+  }
+  function iconBack(){
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>';
+  }
+  function iconStore(){
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9h18v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9z"/><path d="M9 20v-6h6v6"/></svg>';
+  }
+  function iconTruck(){
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="7" width="13" height="9"/><path d="M14.5 10h4l3.5 3.5V16h-7.5z"/><circle cx="6" cy="18.5" r="1.6"/><circle cx="17.5" cy="18.5" r="1.6"/></svg>';
+  }
+  function iconCard(){
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>';
+  }
+  function iconWallet(){
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h13a1 1 0 0 1 1 1v3"/><path d="M3 7v11a2 2 0 0 0 2 2h14a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1h-4a2.5 2.5 0 0 1 0-5h4"/></svg>';
+  }
+  function iconCash(){
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="1.5"/><circle cx="12" cy="12" r="3"/></svg>';
+  }
+  function iconCheck(){
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="var(--sage)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" fill="rgba(124,152,133,0.12)"/><path d="M8 12.5l2.6 2.6L16 9.5"/></svg>';
+  }
+  function iconEmptyCart(){
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.2" fill="currentColor" stroke="none"/><circle cx="18" cy="20" r="1.2" fill="currentColor" stroke="none"/><path d="M2.5 3h2l2.2 12.2a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H6"/></svg>';
+  }
+  function brandMark(){
+    return '<svg class="brand-mark" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">' +
+      '<g>' + petalFlowerMini() + '</g></svg>';
+  }
+  function petalFlowerMini(){
+    var cx=12, cy=12, r=8.4, s="";
+    for (var i=0;i<6;i++){
+      var a = i*60;
+      s += '<ellipse cx="'+cx+'" cy="'+(cy-r*0.55)+'" rx="'+(r*0.30)+'" ry="'+(r*0.58)+'" fill="var(--rose-deep)" transform="rotate('+a+' '+cx+' '+cy+')"/>';
+    }
+    s += '<circle cx="'+cx+'" cy="'+cy+'" r="'+(r*0.24)+'" fill="var(--gold)"/>';
+    return s;
+  }
+
+  /* ---------- chrome ---------- */
+  function stepIndexFor(screen){
+    switch(screen){
+      case "home": return 0;
+      case "detail": return 0;
+      case "cart": return 1;
+      case "authGate": case "register": case "login": return 2;
+      case "fulfillment": case "delivery": return 3;
+      case "payment": return 4;
+      case "confirm": case "done": return 5;
+      default: return 0;
+    }
+  }
+  function renderSteps(){
+    var current = stepIndexFor(state.screen);
+    var html = '<div class="steps">';
+    STEP_LABELS.forEach(function(label, i){
+      var cls = "step" + (i === current ? " active" : (i < current ? " done" : ""));
+      html += '<div class="' + cls + '"><div class="step-bar"></div><div class="step-label">' + esc(label) + '</div></div>';
+    });
+    html += '</div>';
+    return html;
+  }
+  function renderTopbar(){
+    var count = cartCount();
+    var cartClickable = count > 0;
+    return '' +
+      '<div class="topbar">' +
+        '<div class="topbar-inner">' +
+          '<button class="brand" onclick="App.go(\'home\')">' + brandMark() + 'PetalHub</button>' +
+          '<button class="cart-pill" ' + (cartClickable ? 'onclick="App.openCart()"' : 'style="opacity:.55;cursor:default"') + '>' +
+            iconCart() + '<span>Cart</span><span class="cart-count">' + count + '</span>' +
+          '</button>' +
+        '</div>' +
+        (state.screen === "home" ? "" : renderSteps()) +
+      '</div>';
+  }
+
+  /* ---------- screens ---------- */
+  function screenHome(){
+    var cards = FLOWERS.map(function(f){
+      return '' +
+        '<button class="flower-card" onclick="App.openDetail(' + f.id + ')">' +
+          '<span class="flower-tag">' + esc(f.tag) + '</span>' +
+          '<div class="flower-icon-wrap">' + petalFlower(f.color, f.petals) + '</div>' +
+          '<div class="flower-name display">' + esc(f.name) + '</div>' +
+          '<div class="flower-price">' + money(f.price) + ' / bunch</div>' +
+        '</button>';
+    }).join("");
+    return '' +
+      '<div class="hero">' +
+        '<div><h1>Fresh stems, chosen and sent with care.</h1><p>Browse this week\u2019s cuts from the PetalHub growers\u2019 room, add what catches your eye, and we\u2019ll get it to you \u2014 by pickup or delivery.</p></div>' +
+        petalFlower("var(--rose)", 8).replace("<svg ", '<svg class="hero-mark" ') +
+      '</div>' +
+      '<div class="grid">' + cards + '</div>';
+  }
+
+  function screenDetail(){
+    var f = FLOWERS.filter(function(x){ return x.id === state.detailId; })[0];
+    if (!f) { go("home"); return ""; }
+    return '' +
+      '<button class="back-link" onclick="App.go(\'home\')">' + iconBack() + 'Back to browsing</button>' +
+      '<div class="detail">' +
+        '<div class="detail-visual">' + petalFlower(f.color, f.petals) + '</div>' +
+        '<div class="detail-body">' +
+          '<span class="flower-tag">' + esc(f.tag) + '</span>' +
+          '<h2 style="margin-top:10px;">' + esc(f.name) + '</h2>' +
+          '<div class="detail-price">' + money(f.price) + ' per bunch</div>' +
+          '<p class="detail-desc">' + esc(f.desc) + '</p>' +
+          '<div class="detail-stock">' + esc(f.stock) + '</div>' +
+          '<div class="qty-row">' +
+            '<button class="qty-btn" onclick="App.changeQty(-1)" aria-label="Decrease quantity">\u2212</button>' +
+            '<span class="qty-val">' + state.qty + '</span>' +
+            '<button class="qty-btn" onclick="App.changeQty(1)" aria-label="Increase quantity">+</button>' +
+          '</div>' +
+          '<button class="btn" onclick="App.addToCart(' + f.id + ')">Add ' + state.qty + ' to cart \u2014 ' + money(f.price * state.qty) + '</button>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function screenAuthGate(){
+    return '' +
+      '<div class="panel" style="max-width:460px;margin:0 auto;">' +
+        '<h2>Have a PetalHub account?</h2>' +
+        '<p class="sub">Sign in or create an account so we can confirm your order and track delivery.</p>' +
+        '<div class="choice-row" style="margin-top:6px;">' +
+          '<button class="tap-card" onclick="App.go(\'login\')"><span class="t">Yes, log in</span><span class="d">I already have an account</span></button>' +
+          '<button class="tap-card" onclick="App.go(\'register\')"><span class="t">No, register</span><span class="d">Set up a new account</span></button>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function screenRegister(){
+    return '' +
+      '<div class="panel" style="max-width:460px;margin:0 auto;">' +
+        '<h2>Register a new account</h2>' +
+        '<p class="sub">Takes under a minute \u2014 this stays on your device for this demo.</p>' +
+        (state.registerError ? '<div class="error-box" style="margin-bottom:14px;">' + esc(state.registerError) + '</div>' : '') +
+        '<form class="stack" onsubmit="return App.submitRegister(event)">' +
+          '<div class="field"><label for="reg-name">Full name</label><input id="reg-name" type="text" placeholder="Jamie Flores" autocomplete="name"></div>' +
+          '<div class="field"><label for="reg-email">Email address</label><input id="reg-email" type="email" placeholder="jamie@email.com" autocomplete="email"></div>' +
+          '<div class="row2">' +
+            '<div class="field"><label for="reg-pass">Password</label><input id="reg-pass" type="password" placeholder="At least 6 characters" autocomplete="new-password"></div>' +
+            '<div class="field"><label for="reg-pass2">Confirm password</label><input id="reg-pass2" type="password" placeholder="Repeat password" autocomplete="new-password"></div>' +
+          '</div>' +
+          '<button class="btn block" type="submit">Create account</button>' +
+        '</form>' +
+        '<div class="switch-mode">Already registered? <button onclick="App.go(\'login\')">Log in instead</button></div>' +
+      '</div>';
+  }
+
+  function screenLogin(){
+    return '' +
+      '<div class="panel" style="max-width:460px;margin:0 auto;">' +
+        '<h2>Log in</h2>' +
+        '<p class="sub">Demo password is <strong>' + DEMO_PASSWORD + '</strong> \u2014 try a wrong one first to see what happens.</p>' +
+        (state.loginError ? '<div class="error-box" style="margin-bottom:14px;">' + esc(state.loginError) + '</div>' : '') +
+        '<form class="stack" onsubmit="return App.submitLogin(event)">' +
+          '<div class="field"><label for="log-email">Email address</label><input id="log-email" type="email" placeholder="jamie@email.com" autocomplete="email"></div>' +
+          '<div class="field"><label for="log-pass">Password</label><input id="log-pass" type="password" placeholder="Enter your password" autocomplete="current-password"></div>' +
+          '<button class="btn block" type="submit">Log in</button>' +
+        '</form>' +
+        '<div class="switch-mode">New here? <button onclick="App.go(\'register\')">Register an account</button></div>' +
+      '</div>';
+  }
+
+  function screenCart(){
+    if (state.cart.length === 0){
+      return '<div class="empty-state">' + iconEmptyCart() + '<div>Your cart is empty.</div>' +
+        '<div style="margin-top:18px;"><button class="btn" onclick="App.go(\'home\')">Browse flowers</button></div></div>';
+    }
+    var lines = state.cart.map(function(l){
+      var f = FLOWERS.filter(function(x){ return x.id === l.id; })[0];
+      return '' +
+        '<div class="cart-line">' +
+          '<div class="cart-line-icon">' + petalFlower(f.color, f.petals) + '</div>' +
+          '<div><div class="cart-line-name">' + esc(f.name) + '</div><div class="cart-line-sub">' + money(f.price) + ' / bunch</div></div>' +
+          '<div class="cart-line-controls">' +
+            '<button class="qty-btn" onclick="App.lineQty(' + f.id + ',-1)" aria-label="Decrease">\u2212</button>' +
+            '<span class="qty-val">' + l.qty + '</span>' +
+            '<button class="qty-btn" onclick="App.lineQty(' + f.id + ',1)" aria-label="Increase">+</button>' +
+          '</div>' +
+          '<div class="cart-line-total">' + money(f.price * l.qty) + '</div>' +
+        '</div>';
+    }).join("");
+    var total = cartTotal();
+    return '' +
+      '<div class="panel">' +
+        '<h2>Your cart</h2>' +
+        '<p class="sub">' + (state.authenticated ? "Signed in as " + esc(state.userName) : "Review your stems before checkout") + '</p>' +
+        lines +
+        '<div class="summary-row total"><span>Subtotal</span><span>' + money(total) + '</span></div>' +
+      '</div>' +
+      '<div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;">' +
+        '<button class="btn secondary" onclick="App.go(\'home\')">Continue shopping</button>' +
+        '<button class="btn" onclick="App.go(\'fulfillment\')">Proceed to checkout</button>' +
+      '</div>';
+  }
+
+  function screenFulfillment(){
+    return '' +
+      '<div class="panel" style="max-width:520px;margin:0 auto;">' +
+        '<h2>Pickup or delivery?</h2>' +
+        '<p class="sub">Choose how you\u2019d like to receive your order.</p>' +
+        '<div class="choice-row">' +
+          '<button class="tap-card" onclick="App.choosePickup()">' + iconStore() + '<span class="t">Pick up at store</span><span class="d">Ready in 2 hours, Ilocos Sur branch</span></button>' +
+          '<button class="tap-card" onclick="App.go(\'delivery\')">' + iconTruck() + '<span class="t">Delivery</span><span class="d">Arrives within 1\u20132 days</span></button>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function screenDelivery(){
+    var a = state.address;
+    return '' +
+      '<div class="panel" style="max-width:520px;margin:0 auto;">' +
+        '<button class="back-link" onclick="App.go(\'fulfillment\')">' + iconBack() + 'Change fulfillment</button>' +
+        '<h2>Delivery address</h2>' +
+        '<p class="sub">Where should we send your flowers?</p>' +
+        '<form class="stack" onsubmit="return App.submitDelivery(event)">' +
+          '<div class="field"><label for="d-street">Street address</label><input id="d-street" type="text" value="' + esc(a.street) + '" placeholder="123 Rizal Street"></div>' +
+          '<div class="row2">' +
+            '<div class="field"><label for="d-city">City / town</label><input id="d-city" type="text" value="' + esc(a.city) + '" placeholder="Caoayan"></div>' +
+            '<div class="field"><label for="d-zip">ZIP / postal code</label><input id="d-zip" type="text" value="' + esc(a.zip) + '" placeholder="2703"></div>' +
+          '</div>' +
+          '<button class="btn block" type="submit">Continue to payment</button>' +
+        '</form>' +
+      '</div>';
+  }
+
+  function screenPayment(){
+    var opts = [
+      { id: "card", label: "Credit / debit card", desc: "Visa, Mastercard", icon: iconCard() },
+      { id: "wallet", label: "GCash / e-wallet", desc: "Pay from your mobile wallet", icon: iconWallet() },
+      { id: "cash", label: state.fulfillment === "delivery" ? "Cash on delivery" : "Cash on pickup", desc: "Pay when you receive your order", icon: iconCash() }
+    ];
+    var rows = opts.map(function(o){
+      var sel = state.payment === o.id;
+      return '<button class="pay-opt' + (sel ? ' selected' : '') + '" onclick="App.choosePayment(\'' + o.id + '\')">' +
+        o.icon + '<div><div class="t">' + esc(o.label) + '</div><div class="d">' + esc(o.desc) + '</div></div></button>';
+    }).join("");
+    return '' +
+      '<div class="panel" style="max-width:520px;margin:0 auto;">' +
+        '<h2>Choose payment method</h2>' +
+        '<p class="sub">Fulfillment: ' + (state.fulfillment === "delivery" ? "Delivery to " + esc(state.address.street || "your address") : "Pickup at store") + '</p>' +
+        '<div class="payment-list">' + rows + '</div>' +
+        '<button class="btn block" ' + (state.payment ? '' : 'disabled') + ' onclick="App.go(\'confirm\')">Review order</button>' +
+      '</div>';
+  }
+
+  function screenConfirm(){
+    var total = cartTotal();
+    var payLabel = { card: "Credit / debit card", wallet: "GCash / e-wallet", cash: state.fulfillment === "delivery" ? "Cash on delivery" : "Cash on pickup" }[state.payment] || "\u2014";
+    var itemsLine = state.cart.map(function(l){
+      var f = FLOWERS.filter(function(x){ return x.id === l.id; })[0];
+      return esc(f.name) + " \u00d7" + l.qty;
+    }).join(", ");
+    return '' +
+      '<div class="panel" style="max-width:520px;margin:0 auto;">' +
+        '<h2>Confirm your order</h2>' +
+        '<p class="sub">Double-check everything before we send it off.</p>' +
+        '<div class="confirm-list">' +
+          '<div class="confirm-item"><span class="label">Items</span><span>' + itemsLine + '</span></div>' +
+          '<div class="confirm-item"><span class="label">Fulfillment</span><span>' + (state.fulfillment === "delivery" ? "Delivery" : "Pickup at store") + '</span></div>' +
+          (state.fulfillment === "delivery" ? '<div class="confirm-item"><span class="label">Address</span><span>' + esc([state.address.street, state.address.city, state.address.zip].filter(Boolean).join(", ")) + '</span></div>' : '') +
+          '<div class="confirm-item"><span class="label">Payment</span><span>' + esc(payLabel) + '</span></div>' +
+          '<div class="confirm-item"><span class="label">Account</span><span>' + esc(state.userName || "Guest") + '</span></div>' +
+        '</div>' +
+        '<div class="summary-row total"><span>Total</span><span>' + money(total) + '</span></div>' +
+        '<button class="btn block" style="margin-top:18px;" onclick="App.confirmOrder()">Confirm order</button>' +
+      '</div>';
+  }
+
+  function screenDone(){
+    return '' +
+      '<div class="done-wrap">' +
+        '<div class="done-mark">' + iconCheck() + '</div>' +
+        '<h2 style="font-size:26px;">Order confirmed</h2>' +
+        '<p style="color:var(--text-soft);max-width:360px;margin:10px auto 0;">A confirmation has been sent for your order. Thank you for choosing PetalHub.</p>' +
+        '<div class="order-code">' + esc(state.orderCode) + '</div>' +
+        '<div class="actions-row">' +
+          '<button class="btn" onclick="App.newOrder()">Start a new order</button>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function renderMain(){
+    switch(state.screen){
+      case "home": return screenHome();
+      case "detail": return screenDetail();
+      case "authGate": return screenAuthGate();
+      case "register": return screenRegister();
+      case "login": return screenLogin();
+      case "cart": return screenCart();
+      case "fulfillment": return screenFulfillment();
+      case "delivery": return screenDelivery();
+      case "payment": return screenPayment();
+      case "confirm": return screenConfirm();
+      case "done": return screenDone();
+      default: return screenHome();
+    }
+  }
+
+  function render(){
+    document.getElementById("app").innerHTML =
+      renderTopbar() +
+      "<main>" + renderMain() + "</main>" +
+      '<footer>PetalHub \u2014 a working prototype. No real orders, accounts or payments are processed.</footer>';
+  }
+
+  /* ---------- actions ---------- */
+  var App = {
+    go: go,
+    openDetail: function(id){ state.detailId = id; state.qty = 1; go("detail"); },
+    changeQty: function(d){ state.qty = Math.max(1, state.qty + d); render(); },
+    addToCart: function(id){
+      var line = state.cart.filter(function(l){ return l.id === id; })[0];
+      if (line) line.qty += state.qty; else state.cart.push({ id: id, qty: state.qty });
+      if (state.authenticated) go("cart"); else go("authGate");
+    },
+    openCart: function(){
+      if (state.authenticated) go("cart"); else go("authGate");
+    },
+    lineQty: function(id, d){
+      var line = state.cart.filter(function(l){ return l.id === id; })[0];
+      if (!line) return;
+      line.qty += d;
+      if (line.qty <= 0) state.cart = state.cart.filter(function(l){ return l.id !== id; });
+      render();
+    },
+    submitRegister: function(ev){
+      ev.preventDefault();
+      var name = document.getElementById("reg-name").value.trim();
+      var email = document.getElementById("reg-email").value.trim();
+      var pass = document.getElementById("reg-pass").value;
+      var pass2 = document.getElementById("reg-pass2").value;
+      if (!name || !email || !pass || !pass2){
+        state.registerError = "Please fill in every field to finish registration.";
+      } else if (email.indexOf("@") === -1 || email.indexOf(".") === -1){
+        state.registerError = "That doesn\u2019t look like a valid email address.";
+      } else if (pass.length < 6){
+        state.registerError = "Password must be at least 6 characters.";
+      } else if (pass !== pass2){
+        state.registerError = "Passwords don\u2019t match \u2014 try again.";
+      } else {
+        state.registerError = "";
+        state.authenticated = true;
+        state.userName = name;
+        go("cart");
+        return false;
+      }
+      render();
+      return false;
+    },
+    submitLogin: function(ev){
+      ev.preventDefault();
+      var email = document.getElementById("log-email").value.trim();
+      var pass = document.getElementById("log-pass").value;
+      if (!email || !pass){
+        state.loginError = "Enter both your email and password.";
+      } else if (pass !== DEMO_PASSWORD){
+        state.loginError = "Incorrect password. Hint: it\u2019s \u201c" + DEMO_PASSWORD + "\u201d for this demo.";
+      } else {
+        state.loginError = "";
+        state.authenticated = true;
+        state.userName = email.split("@")[0];
+        go("cart");
+        return false;
+      }
+      render();
+      return false;
+    },
+    choosePickup: function(){ state.fulfillment = "pickup"; go("payment"); },
+    submitDelivery: function(ev){
+      ev.preventDefault();
+      var street = document.getElementById("d-street").value.trim();
+      var city = document.getElementById("d-city").value.trim();
+      var zip = document.getElementById("d-zip").value.trim();
+      if (!street || !city){
+        document.getElementById("d-street").reportValidity && document.getElementById("d-street").focus();
+        return false;
+      }
+      state.fulfillment = "delivery";
+      state.address = { street: street, city: city, zip: zip };
+      go("payment");
+      return false;
+    },
+    choosePayment: function(id){ state.payment = id; render(); },
+    confirmOrder: function(){
+      state.orderCode = "PH-" + Math.floor(100000 + Math.random() * 900000);
+      go("done");
+    },
+    newOrder: function(){
+      state.cart = [];
+      state.fulfillment = null;
+      state.address = { street: "", city: "", zip: "" };
+      state.payment = null;
+      state.orderCode = null;
+      go("home");
+    }
+  };
+  window.App = App;
+
+  render();
+})();
+</script>
+</body>
+</html>
